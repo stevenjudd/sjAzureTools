@@ -1,6 +1,8 @@
 Param (
     [String]
-    $ModuleName = 'sjAzureTools'
+    $ModuleName = 'sjAzureTools',
+
+    $targetModuleVerDir
 )
 
 task . Init, Clean, Build, Test
@@ -20,6 +22,15 @@ task Init {
             Import-Module -Name $_ -Verbose:$false -ErrorAction Stop -Force
         }
     }
+    $moduleDir = Join-Path '.' $ModuleName
+    $manifest = Import-PowerShellDataFile (Join-Path $moduleDir "$($ModuleName).psd1")
+    $BuildOutputFolder = Join-Path '.' 'BuildOutput'
+    $targetModuleDir = Join-Path $BuildOutputFolder $ModuleName
+    $originalVersion = $manifest.ModuleVersion.ToString()
+    $nextVersionSplit = $originalVersion.Split('.')
+    $lastVersionBumped = [int]$nextVersionSplit[-1] + 1
+    $nextVersion = "{0}.{1}.{2}" -f $nextVersionSplit[0], $nextVersionSplit[1], $lastVersionBumped
+    $script:targetModuleVerDir = Join-Path $targetModuleDir $nextVersion
 }
 
 task Clean Init, {
@@ -32,11 +43,8 @@ task Build {
     $BuildOutputFolder = Join-Path '.' 'BuildOutput'
     $targetModuleDir = Join-Path $BuildOutputFolder $ModuleName
     $originalVersion = $manifest.ModuleVersion.ToString()
-    $nextVersionSplit = $originalVersion.Split('.')
-    $lastVersionBumped = [int]$nextVersionSplit[-1] + 1
-    $nextVersion = "{0}.{1}.{2}" -f $nextVersionSplit[0], $nextVersionSplit[1], $lastVersionBumped
-    Update-ModuleManifest -Path (Join-Path $moduleDir "$($ModuleName).psd1") -ModuleVersion $nextVersion
-    $targetModuleVerDir = Join-Path $targetModuleDir $nextVersion
+    $nextVersion = $targetModuleVerDir -split [regex]::Escape([system.io.path]::DirectorySeparatorChar)
+    Update-ModuleManifest -Path (Join-Path $moduleDir "$($ModuleName).psd1") -ModuleVersion $nextVersion[-1]
     $targetPSM1File = Join-Path $targetModuleVerDir "$($ModuleName).psm1"
 
     # Create the BuildOutput/Module/Version folder
@@ -70,7 +78,7 @@ task Test {
 }
 
 task Deploy Init, {
-    "Publishing version to PSGallery..."
+    "Publishing version to PSGallery from path $targetModuleVerDir"
     Publish-Module -Path $targetModuleVerDir -NuGetApiKey $env:NugetApiKey -Repository PSGallery -Verbose
     "Deployment successful!"
 }
