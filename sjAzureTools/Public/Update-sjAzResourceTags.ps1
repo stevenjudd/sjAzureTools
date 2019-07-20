@@ -5,7 +5,7 @@ function Update-sjAzResourceTags {
 
     <#
     .NOTES
-        PowerShell function written to add tags to Azure Resource Groups
+        PowerShell function written to add tags to Azure Resources
         Written by Steven Judd on 2019/06/25
         Version 20190710
         Updated by Steven Judd on 2019/07/09 to do the following:
@@ -20,19 +20,19 @@ function Update-sjAzResourceTags {
 
         Add Features:
             ...
-            
+
     .SYNOPSIS
         Add tags to an Azure Resource.
     .DESCRIPTION
         This function will add tags to an Azure Resource. It will not remove any
-        existing tags. Rather, it will add those that need to be added and update tags 
+        existing tags. Rather, it will add those that need to be added and update tags
         that already exist with new data provided.
 
     .LINK
         XXXX
     .PARAMETER ResourceID
         Enter the Azure ResourceID for the Resource to be tagged. The benefit of using
-        the ResourceID is the Subscription and Resource Group information is not 
+        the ResourceID is the Subscription and Resource Group information is not
         required to be known or entered.
 
         This is the default parameter and will be required if no parameters are entered.
@@ -61,7 +61,7 @@ function Update-sjAzResourceTags {
         Get-AzResource Server1 | Update-sjAzResourceTags -Tags @{Environment = 'Prd'}
 
         This example will add the Divest:Yes tag on the Server1 Resource in the current
-        subscription. This method shows that you can pipe an object to the 
+        subscription. This method shows that you can pipe an object to the
         Update-sjAzResourceTags function and it will tag the resource.
 
         Note: Make sure the Get-AzResource command returns the proper object.
@@ -88,7 +88,7 @@ function Update-sjAzResourceTags {
         [Parameter(Position = 0, Mandatory, ParameterSetName = "ResourceID",
             ValueFromPipelineByPropertyName)]
         [string]$ResourceID,
-        
+
         [Parameter(Position = 0, Mandatory, ParameterSetName = "SubRgName",
             ValueFromPipelineByPropertyName)]
         [string]$SubscriptionName,
@@ -105,7 +105,7 @@ function Update-sjAzResourceTags {
         # [Parameter(Position=0,Mandatory,ParameterSetName="InputObject",
         #     ValueFromPipeline)]
         #     [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResource]$InputObject,
- 
+
         [Parameter(Position = 3, Mandatory,
             ValueFromPipelineByPropertyName)]
         [System.Collections.Hashtable]$Tags
@@ -119,7 +119,7 @@ function Update-sjAzResourceTags {
             Write-Verbose "Checking connection to Azure Resource Manager"
             $AzureContext = Get-AzContext -ErrorAction Stop
             #if not connected the Id will be $null
-            if (-not($AzureContext.Account.Id)) { 
+            if (-not($AzureContext.Account.Id)) {
                 $pscmdlet.ThrowTerminatingError("Run Add-AzAccount to login to Azure") #this will move to the Catch block instead of throwing the error message
             }
         }
@@ -186,7 +186,7 @@ function Update-sjAzResourceTags {
             }
             catch {
                 Write-Error $_
-                continue 
+                continue
             }
         } #end if not $ResourceID
         else {
@@ -195,10 +195,10 @@ function Update-sjAzResourceTags {
             }
             catch {
                 Write-Error $_
-                continue 
+                continue
             }
         }
-        
+
         updateResourceTag -ResourceObject $ResourceObject -Tags $Tags
 
         #if resource is a VM, get and tag the Disks and NICs
@@ -231,7 +231,7 @@ function Update-sjAzResourceTags {
             $null = Set-AzContext -Subscription ($InitialSubscription.Subscription)
         } #end if not in Initial Subscription
     }
-    
+
 } #end Update-sjAzResourceTags function
 
 #test runs

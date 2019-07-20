@@ -3,7 +3,7 @@ Param (
     $ModuleName = 'sjAzureTools'
 )
 
-task . Init, Clean, Build, Test
+task . Init, Clean, Build, Test, Deploy
 
 task Init {
     Write-Host "Build System Details:"
@@ -59,4 +59,8 @@ task Build {
 
 task Test {
     Invoke-Pester
+}
+
+task Deploy Init, {
+    Write-Host "deploying..."
 }
