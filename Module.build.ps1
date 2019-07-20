@@ -3,7 +3,7 @@ Param (
     $ModuleName = 'sjAzureTools'
 )
 
-task . Init, Clean, Build, Test, Deploy
+task . Init, Clean, Build, Test
 
 task Init {
     Write-Host "Build System Details:"
@@ -31,7 +31,12 @@ task Build {
     $manifest = Import-PowerShellDataFile (Join-Path $moduleDir "$($ModuleName).psd1")
     $BuildOutputFolder = Join-Path '.' 'BuildOutput'
     $targetModuleDir = Join-Path $BuildOutputFolder $ModuleName
-    $targetModuleVerDir = Join-Path $targetModuleDir $manifest.ModuleVersion
+    $originalVersion = $manifest.ModuleVersion.ToString()
+    $nextVersionSplit = $originalVersion.Split('.')
+    $lastVersionBumped = [int]$nextVersionSplit[-1] + 1
+    $nextVersion = "{0}.{1}.{2}" -f $nextVersionSplit[0], $nextVersionSplit[1], $lastVersionBumped
+    Update-ModuleManifest -Path (Join-Path $moduleDir "$($ModuleName).psd1") -ModuleVersion $nextVersion
+    $targetModuleVerDir = Join-Path $targetModuleDir $nextVersion
     $targetPSM1File = Join-Path $targetModuleVerDir "$($ModuleName).psm1"
 
     # Create the BuildOutput/Module/Version folder
@@ -54,6 +59,9 @@ task Build {
     # Copy our PSD1 from the $moduleDir to $targetModuleVerDir
     Copy-Item -Path (Join-Path $moduleDir "$($ModuleName).psd1") -Destination $targetModuleVerDir -Force
 
+    # Reset our source version
+    Update-ModuleManifest -Path (Join-Path $moduleDir "$($ModuleName).psd1") -ModuleVersion $originalVersion
+
     # Profit?
 }
 
@@ -62,5 +70,7 @@ task Test {
 }
 
 task Deploy Init, {
-    Write-Host "deploying..."
+    "Publishing version to PSGallery..."
+    Publish-Module -Path $targetModuleVerDir -NuGetApiKey $env:NugetApiKey -Repository PSGallery -Verbose
+    "Deployment successful!"
 }

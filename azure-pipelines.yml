@@ -26,3 +26,8 @@ steps:
     mergeTestResults: true
 
     testRunTitle: '$(Build.BuildNumber)'
+
+- powershell: |
+    $env:NuGetApiKey = '$(NugetAPIKey)'
+    . ./build.ps1 -task Deploy
+  displayName: 'PowerShell Deploy Module'
