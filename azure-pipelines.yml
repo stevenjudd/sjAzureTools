@@ -3,7 +3,7 @@ resources:
 queue:
   name: Hosted Windows Container
 steps:
-- powershell: . build.ps1 
+- powershell: . ./build.ps1
   displayName: 'PowerShell Script'
 
 - task: PublishBuildArtifacts@1
