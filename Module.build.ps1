@@ -58,7 +58,7 @@ task Build {
 }
 
 task Test {
-    Invoke-Pester
+    Invoke-Pester -OutputFormat NUnitXml -OutputFile ".\BuildOutput\TestResults$(Get-Date -Format yyyyMMddHHmmss).xml" -PassThru
 }
 
 task Deploy Init, {
