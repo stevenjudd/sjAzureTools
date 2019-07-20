@@ -1,5 +1,7 @@
 resources:
 - repo: self
+variables:
+- group: deploymentvars
 queue:
   name: Hosted Windows Container
 steps:
