@@ -40,8 +40,8 @@ task Clean Init, {
 task Build {
     $moduleDir = Join-Path '.' $ModuleName
     $manifest = Import-PowerShellDataFile (Join-Path $moduleDir "$($ModuleName).psd1")
-    $BuildOutputFolder = Join-Path '.' 'BuildOutput'
-    $targetModuleDir = Join-Path $BuildOutputFolder $ModuleName
+    #$BuildOutputFolder = Join-Path '.' 'BuildOutput'
+    #$targetModuleDir = Join-Path $BuildOutputFolder $ModuleName
     $originalVersion = $manifest.ModuleVersion.ToString()
     $nextVersion = $targetModuleVerDir -split [regex]::Escape([system.io.path]::DirectorySeparatorChar)
     Update-ModuleManifest -Path (Join-Path $moduleDir "$($ModuleName).psd1") -ModuleVersion $nextVersion[-1]
